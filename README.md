@@ -4,30 +4,22 @@
 
 ## 功能特性
 
-- 🎤 **一键录音**：最长 5 分钟录音，自动转写
+- 🎤 **一键录音**：最长 5 分钟的语音录制
+- 📝 **自动转录**：AI 驱动的语音转文字
 - 📊 **四维度分析**：
   - 表达指向性（自我 vs 他人）
   - 结构清晰度（核心能力）
   - 具体程度（Concrete & Specific）
   - 主题与重点（Key Message）
-- 💡 **框架推荐**：当结构清晰度较弱时，推荐使用表达框架（过去-现在-未来、空-雨-伞、3C）
-- 📝 **历史记录**：ChatGPT 风格的分割布局，记录所有练习历史
-- 🔄 **迭代练习**：支持在同一主题上多次录音，比较改进
+- 🔄 **迭代练习**：同一主题多次尝试，跟踪改进
+- 💡 **框架推荐**：当结构清晰度较弱时，推荐表达框架（过去-现在-未来、空-雨-伞、3C）
+- 📚 **历史记录**：ChatGPT 风格的分割布局，方便查看历史练习
 
 ## 技术栈
 
 - **后端**：FastAPI + Python
 - **前端**：HTML + CSS + JavaScript
-- **AI API**：AI Builders Space Backend
-
-## 部署
-
-项目已配置 Dockerfile，支持部署到 Koyeb 平台。
-
-### 环境变量
-
-- `AI_BUILDER_TOKEN` 或 `SUPER_MIND_API_KEY`：API 密钥
-- `PORT`：服务器端口（部署时自动设置）
+- **AI 服务**：AI Builders Space Backend API
 
 ## 本地运行
 
@@ -50,3 +42,10 @@ uvicorn main:app --reload
 
 4. 访问：http://localhost:8000
 
+## 部署
+
+本项目支持部署到 ai-builders.space 平台。
+
+## License
+
+MIT

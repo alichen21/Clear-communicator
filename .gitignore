@@ -1,0 +1,15 @@
+.env
+__pycache__/
+*.pyc
+.DS_Store
+history.json
+topics.json
+*.json.bak
+.vscode/
+.idea/
+.venv/
+venv/
+env/
+*.log
+.cursor/
+check_deployment.sh
