@@ -1,0 +1,1281 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clear Communicator - 清晰表达</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Microsoft YaHei', sans-serif;
+            background: #f5f5f5;
+            height: 100vh;
+            overflow: hidden;
+            color: #333;
+        }
+
+        .app-layout {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Left Sidebar - History */
+        .sidebar {
+            width: 320px;
+            background: #ffffff;
+            border-right: 1px solid #e5e5e5;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .sidebar-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .sidebar-subtitle {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .new-recording-btn {
+            width: calc(100% - 40px);
+            padding: 12px;
+            margin: 16px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .new-recording-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .history-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px;
+        }
+
+        .history-topic {
+            margin-bottom: 12px;
+        }
+
+        .topic-header {
+            padding: 12px 16px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .topic-header:hover {
+            background: #e9ecef;
+        }
+
+        .topic-header.active {
+            background: #e7e3ff;
+            border-left: 3px solid #667eea;
+        }
+
+        .topic-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+            font-size: 0.95rem;
+        }
+
+        .topic-date {
+            font-size: 0.75rem;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .topic-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-top: 8px;
+        }
+
+        .tag {
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            background: #e7e3ff;
+            color: #667eea;
+            border-radius: 12px;
+        }
+
+        .attempts-list {
+            margin-top: 8px;
+            padding-left: 16px;
+            display: none;
+        }
+
+        .topic-header.active + .attempts-list {
+            display: block;
+        }
+
+        .attempt-item {
+            padding: 8px 12px;
+            margin-bottom: 4px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .attempt-item:hover {
+            background: #f8f9fa;
+        }
+
+        .attempt-item.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .history-empty {
+            padding: 40px 20px;
+            text-align: center;
+            color: #999;
+            font-size: 0.9rem;
+        }
+
+        /* Right Content Area */
+        .content-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: #ffffff;
+        }
+
+        .content-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #e5e5e5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .content-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .content-scroll {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+        }
+
+        .recording-section {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .record-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 24px 48px;
+            font-size: 1.5rem;
+            font-weight: 600;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            min-width: 250px;
+        }
+
+        .record-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .record-btn:active {
+            transform: translateY(0);
+        }
+
+        .record-btn.recording {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
+            }
+            50% {
+                box-shadow: 0 4px 25px rgba(245, 87, 108, 0.8);
+            }
+        }
+
+        .timer {
+            font-size: 1.2rem;
+            color: #666;
+            margin-top: 20px;
+            min-height: 30px;
+        }
+
+        .status {
+            color: #666;
+            margin-top: 10px;
+            min-height: 24px;
+        }
+
+        .status.processing {
+            color: #667eea;
+        }
+
+        .status.error {
+            color: #f5576c;
+        }
+
+        /* Results Display */
+        .result-section {
+            margin-bottom: 30px;
+            padding: 24px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+        }
+
+        .result-section h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .result-section p {
+            color: #555;
+            line-height: 1.8;
+            margin-bottom: 10px;
+        }
+
+        .topic-summary {
+            background: #e7f3ff;
+            border-left: 4px solid #0ea5e9;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .topic-summary h3 {
+            color: #0ea5e9;
+            font-size: 1rem;
+            margin-bottom: 8px;
+        }
+
+        .overall-summary {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.05));
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .overall-summary h3 {
+            color: #667eea;
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+        }
+
+        .overall-summary .strengths {
+            margin-bottom: 16px;
+        }
+
+        .overall-summary .strengths-label {
+            font-weight: 600;
+            color: #10b981;
+            margin-bottom: 8px;
+        }
+
+        .overall-summary .limitation {
+            padding-top: 16px;
+            border-top: 1px solid rgba(102, 126, 234, 0.2);
+        }
+
+        .overall-summary .limitation-label {
+            font-weight: 600;
+            color: #f5576c;
+            margin-bottom: 8px;
+        }
+
+        .framework-section {
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.1), rgba(245, 158, 11, 0.05));
+            border-left: 4px solid #fbbf24;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .framework-section h3 {
+            color: #f59e0b;
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+        }
+
+        .framework-used {
+            background: #d1fae5;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+        }
+
+        .framework-used .label {
+            font-weight: 600;
+            color: #10b981;
+            margin-bottom: 4px;
+        }
+
+        .framework-recommendation {
+            background: #fef3c7;
+            padding: 12px;
+            border-radius: 6px;
+        }
+
+        .framework-recommendation .label {
+            font-weight: 600;
+            color: #f59e0b;
+            margin-bottom: 4px;
+        }
+
+        .framework-example-btn {
+            background: #fbbf24;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-top: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .framework-example-btn:hover {
+            background: #f59e0b;
+        }
+
+        .dimension-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .dimension-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .dimension-name {
+            font-weight: 600;
+            color: #333;
+            font-size: 1.1rem;
+        }
+
+        .dimension-score {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .dimension-analysis {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .feedback-list {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .feedback-list li {
+            padding: 8px 0;
+            padding-left: 20px;
+            position: relative;
+            color: #555;
+        }
+
+        .feedback-list li::before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .highlights .feedback-list li::before {
+            color: #10b981;
+        }
+
+        .issues .feedback-list li::before {
+            color: #f5576c;
+        }
+
+        .suggestions .feedback-list li::before {
+            color: #667eea;
+        }
+
+        .feedback-label {
+            font-weight: 600;
+            color: #333;
+            margin-top: 15px;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .highlights .feedback-label {
+            color: #10b981;
+        }
+
+        .issues .feedback-label {
+            color: #f5576c;
+        }
+
+        .suggestions .feedback-label {
+            color: #667eea;
+        }
+
+        .improvement-praise {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05));
+            border-left: 4px solid #10b981;
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .improvement-praise h3 {
+            color: #10b981;
+            font-size: 1rem;
+            margin-bottom: 8px;
+        }
+
+        .improvement-praise p {
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .retry-prompt {
+            background: #f8f9fa;
+            border: 2px dashed #667eea;
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .retry-prompt h3 {
+            color: #333;
+            margin-bottom: 12px;
+        }
+
+        .retry-prompt p {
+            color: #666;
+            margin-bottom: 16px;
+        }
+
+        .retry-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .retry-btn:hover {
+            background: #5568d3;
+            transform: translateY(-1px);
+        }
+
+        /* Framework Example Modal */
+        .framework-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .framework-modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .framework-modal-content {
+            background-color: white;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 700px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .framework-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e5e5e5;
+        }
+
+        .framework-modal-header h3 {
+            color: #333;
+            font-size: 1.3rem;
+            margin: 0;
+        }
+
+        .framework-modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #999;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+        }
+
+        .framework-modal-close:hover {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .framework-modal-body {
+            color: #555;
+            line-height: 1.8;
+            font-size: 1rem;
+        }
+
+        .framework-modal-loading {
+            text-align: center;
+            padding: 40px;
+            color: #667eea;
+        }
+
+        .framework-modal-loading .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .framework-suggestion-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .framework-suggestion-text {
+            flex: 1;
+        }
+
+        .framework-generate-btn {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .framework-generate-btn:hover {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(251, 191, 36, 0.4);
+        }
+
+        .framework-generate-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-family: inherit;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .app-layout {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: 200px;
+                border-right: none;
+                border-bottom: 1px solid #e5e5e5;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-layout">
+        <!-- Left Sidebar: History -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2 class="sidebar-title">清晰表达</h2>
+                <p class="sidebar-subtitle">Clear Communicator</p>
+            </div>
+            <button class="new-recording-btn" id="newRecordingBtn">+ 新录音</button>
+            <div class="history-list" id="historyList">
+                <div class="history-empty">暂无历史记录</div>
+            </div>
+        </div>
+
+        <!-- Right Content Area -->
+        <div class="content-area">
+            <div class="content-header">
+                <h2 class="content-title" id="contentTitle">开始新的表达练习</h2>
+            </div>
+            <div class="content-scroll" id="contentScroll">
+                <div class="recording-section" id="recordingSection">
+                    <button class="record-btn" id="recordBtn">Give your talk now</button>
+                    <div class="timer" id="timer"></div>
+                    <div class="status" id="status"></div>
+                </div>
+                <div id="results" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const newRecordingBtn = document.getElementById('newRecordingBtn');
+        const recordBtn = document.getElementById('recordBtn');
+        const timerEl = document.getElementById('timer');
+        const statusEl = document.getElementById('status');
+        const resultsEl = document.getElementById('results');
+        const historyList = document.getElementById('historyList');
+        const contentTitle = document.getElementById('contentTitle');
+        const contentScroll = document.getElementById('contentScroll');
+        const recordingSection = document.getElementById('recordingSection');
+
+        // State
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let isRecording = false;
+        let timerInterval = null;
+        let recordingStartTime = null;
+        const MAX_RECORDING_TIME = 300000; // 5 minutes (changed from 3 minutes)
+        let currentTopicId = null;
+        let currentAttemptId = null;
+
+        // Format time as MM:SS
+        function formatTime(ms) {
+            const totalSeconds = Math.floor(ms / 1000);
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        // Update timer display
+        function updateTimer() {
+            if (!recordingStartTime) return;
+            const elapsed = Date.now() - recordingStartTime;
+            timerEl.textContent = formatTime(elapsed);
+            
+            if (elapsed >= MAX_RECORDING_TIME) {
+                stopRecording();
+            }
+        }
+
+        // Start recording
+        async function startRecording() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                
+                mediaRecorder = new MediaRecorder(stream, { 
+                    mimeType: 'audio/webm;codecs=opus' 
+                });
+                audioChunks = [];
+                
+                mediaRecorder.ondataavailable = (event) => {
+                    if (event.data.size > 0) {
+                        audioChunks.push(event.data);
+                    }
+                };
+                
+                mediaRecorder.onstop = handleRecordingStop;
+                
+                mediaRecorder.start();
+                isRecording = true;
+                recordingStartTime = Date.now();
+                
+                recordBtn.textContent = 'Stop Recording';
+                recordBtn.classList.add('recording');
+                timerEl.textContent = '00:00';
+                statusEl.textContent = 'Recording... (max 5 minutes)';
+                statusEl.className = 'status';
+                resultsEl.style.display = 'none';
+                
+                timerInterval = setInterval(updateTimer, 100);
+                
+            } catch (err) {
+                console.error('Error accessing microphone:', err);
+                statusEl.textContent = 'Error: Could not access microphone. Please allow microphone access.';
+                statusEl.className = 'status error';
+            }
+        }
+
+        // Stop recording
+        function stopRecording() {
+            if (mediaRecorder && isRecording) {
+                mediaRecorder.stop();
+                mediaRecorder.stream.getTracks().forEach(track => track.stop());
+                isRecording = false;
+                
+                clearInterval(timerInterval);
+                
+                recordBtn.textContent = 'Give your talk now';
+                recordBtn.classList.remove('recording');
+            }
+        }
+
+        // Handle recording stop and send to API
+        async function handleRecordingStop() {
+            statusEl.textContent = 'Processing audio...';
+            statusEl.className = 'status processing';
+            recordBtn.disabled = true;
+            
+            try {
+                const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                const formData = new FormData();
+                formData.append('audio_file', audioBlob, 'recording.webm');
+                
+                // Include topic_id if continuing on same topic
+                if (currentTopicId) {
+                    formData.append('topic_id', currentTopicId);
+                } else {
+                    formData.append('topic_id', '');
+                }
+                
+                const response = await fetch('/api/analyze', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentTopicId = data.topic_id;
+                    currentAttemptId = data.attempt_id;
+                    displayResults(data.result, data.is_improvement, data.improvement_praise);
+                    statusEl.textContent = 'Analysis complete!';
+                    statusEl.className = 'status';
+                    loadHistory();
+                } else {
+                    statusEl.textContent = data.error || 'Analysis failed. Please try again.';
+                    statusEl.className = 'status error';
+                }
+                
+            } catch (err) {
+                console.error('Error sending audio:', err);
+                statusEl.textContent = 'Error: Could not analyze audio. Please try again.';
+                statusEl.className = 'status error';
+            } finally {
+                recordBtn.disabled = false;
+            }
+        }
+
+        // Display results
+        function displayResults(result, isImprovement = false, improvementPraise = null) {
+            let html = '';
+            
+            // Improvement praise if this is a retry
+            if (isImprovement && improvementPraise) {
+                html += `
+                    <div class="improvement-praise">
+                        <h3>🎉 进步表扬</h3>
+                        <p>${escapeHtml(improvementPraise)}</p>
+                    </div>
+                `;
+            }
+            
+            // Topic Summary
+            if (result.topic_summary) {
+                html += `
+                    <div class="topic-summary">
+                        <h3>话题总结</h3>
+                        <p>${escapeHtml(result.topic_summary)}</p>
+                    </div>
+                `;
+            }
+            
+            // Overall Summary (new format)
+            if (result.overall_summary) {
+                const summary = typeof result.overall_summary === 'string' 
+                    ? { strengths: result.overall_summary, main_limitation: '' }
+                    : result.overall_summary;
+                
+                html += `
+                    <div class="overall-summary">
+                        <h3>整体印象</h3>
+                        ${summary.strengths ? `
+                            <div class="strengths">
+                                <div class="strengths-label">✓ 做得好的地方</div>
+                                <p>${escapeHtml(summary.strengths)}</p>
+                            </div>
+                        ` : ''}
+                        ${summary.main_limitation ? `
+                            <div class="limitation">
+                                <div class="limitation-label">⚠ 最主要的限制点</div>
+                                <p>${escapeHtml(summary.main_limitation)}</p>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }
+            
+            // Transcription
+            if (result.transcription) {
+                html += `
+                    <div class="result-section">
+                        <h2>转录文本</h2>
+                        <p>${escapeHtml(result.transcription).replace(/\n/g, '<br>')}</p>
+                    </div>
+                `;
+            }
+            
+            // Dimensions (updated with new dimension names)
+            if (result.dimensions && Array.isArray(result.dimensions)) {
+                result.dimensions.forEach((dim, index) => {
+                    // Check if this is the structure clarity dimension and has framework recommendation
+                    const isStructureDimension = dim.name && dim.name.includes('结构清晰度');
+                    let frameworkName = null;
+                    let frameworkSuggestion = null;
+                    
+                    if (isStructureDimension && dim.suggestions) {
+                        // Look for framework recommendation in suggestions
+                        dim.suggestions.forEach(suggestion => {
+                            if (suggestion.includes('框架建议：') || suggestion.includes('可以试试')) {
+                                frameworkSuggestion = suggestion;
+                                // Extract framework name - check for exact matches first
+                                if (suggestion.includes('过去-现在-未来')) {
+                                    frameworkName = '过去-现在-未来';
+                                } else if (suggestion.includes('空-雨-伞') || suggestion.includes('空雨伞')) {
+                                    frameworkName = '空-雨-伞';
+                                } else if (suggestion.includes('3C') || suggestion.includes('三C')) {
+                                    frameworkName = '3C';
+                                }
+                            }
+                        });
+                    }
+                    
+                    html += `
+                        <div class="dimension-card">
+                            <div class="dimension-header">
+                                <div class="dimension-name">${escapeHtml(dim.name)}</div>
+                                <div class="dimension-score">${dim.score}/10</div>
+                            </div>
+                            <div class="dimension-analysis">${escapeHtml(dim.analysis)}</div>
+                            
+                            ${dim.highlights && dim.highlights.length ? `
+                                <div class="highlights">
+                                    <div class="feedback-label">亮点</div>
+                                    <ul class="feedback-list">
+                                        ${dim.highlights.map(h => `<li>${escapeHtml(h)}</li>`).join('')}
+                                    </ul>
+                                </div>
+                            ` : ''}
+                            
+                            ${dim.issues && dim.issues.length ? `
+                                <div class="issues">
+                                    <div class="feedback-label">改进空间</div>
+                                    <ul class="feedback-list">
+                                        ${dim.issues.map(i => `<li>${escapeHtml(i)}</li>`).join('')}
+                                    </ul>
+                                </div>
+                            ` : ''}
+                            
+                            ${dim.suggestions && dim.suggestions.length ? `
+                                <div class="suggestions">
+                                    <div class="feedback-label">建议</div>
+                                    <ul class="feedback-list">
+                                        ${dim.suggestions.map((s, sIdx) => {
+                                            // If this is a framework suggestion, add a button
+                                            if (frameworkSuggestion && s === frameworkSuggestion && frameworkName) {
+                                                const suggestionText = s.replace(/框架建议：.*?（.*?）/, '').trim();
+                                                const buttonId = `framework-btn-${index}-${sIdx}`;
+                                                return `
+                                                    <li class="framework-suggestion-item">
+                                                        <span class="framework-suggestion-text">${escapeHtml(suggestionText)}</span>
+                                                        <button class="framework-generate-btn" id="${buttonId}" data-framework="${frameworkName}" data-transcript="${escapeHtml(result.transcription || '')}">
+                                                            💡 生成${frameworkName}示例
+                                                        </button>
+                                                    </li>
+                                                `;
+                                            }
+                                            return `<li>${escapeHtml(s)}</li>`;
+                                        }).join('')}
+                                    </ul>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                });
+            }
+            
+            // Retry prompt
+            html += `
+                <div class="retry-prompt">
+                    <h3>想在同一主题上再次练习吗？</h3>
+                    <p>应用这些反馈，尝试改进你的表达</p>
+                    <button class="retry-btn" onclick="startNewRecording()">再次录音</button>
+                </div>
+            `;
+            
+            resultsEl.innerHTML = html;
+            resultsEl.style.display = 'block';
+            recordingSection.style.display = 'none';
+            
+            // Attach event listeners to framework buttons
+            resultsEl.querySelectorAll('.framework-generate-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const frameworkName = this.getAttribute('data-framework');
+                    const transcript = this.getAttribute('data-transcript');
+                    generateFrameworkExample(frameworkName, transcript);
+                });
+            });
+            
+            // Scroll to top
+            contentScroll.scrollTop = 0;
+        }
+
+        // Generate and show framework example based on user's transcript
+        async function generateFrameworkExample(frameworkName, transcript) {
+            console.log('Generating framework example:', frameworkName, transcript ? transcript.substring(0, 50) + '...' : 'empty');
+            
+            // Create or get modal
+            let modal = document.getElementById('frameworkModal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'frameworkModal';
+                modal.className = 'framework-modal';
+                modal.innerHTML = `
+                    <div class="framework-modal-content">
+                        <div class="framework-modal-header">
+                            <h3>框架示例</h3>
+                            <button class="framework-modal-close" onclick="closeFrameworkModal()">&times;</button>
+                        </div>
+                        <div class="framework-modal-body" id="frameworkModalBody"></div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+                
+                // Close on background click
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        closeFrameworkModal();
+                    }
+                });
+            }
+            
+            const modalBody = document.getElementById('frameworkModalBody');
+            
+            // Show modal with loading state
+            modal.classList.add('show');
+            modalBody.innerHTML = `
+                <div class="framework-modal-loading">
+                    <div class="spinner"></div>
+                    <p>正在基于你的表达内容生成 ${escapeHtml(frameworkName)} 框架示例...</p>
+                </div>
+            `;
+            
+            try {
+                if (!transcript || transcript.trim() === '') {
+                    throw new Error('转录文本为空');
+                }
+                
+                const formData = new FormData();
+                formData.append('framework_name', frameworkName);
+                formData.append('transcript', transcript);
+                
+                const response = await fetch('/api/generate-framework-example', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('API response:', data);
+                
+                if (data.success && data.example) {
+                    // Show example
+                    modalBody.innerHTML = `
+                        <div style="margin-bottom: 16px; color: #667eea; font-weight: 600;">
+                            ${escapeHtml(frameworkName)} 框架示例（基于你的表达）
+                        </div>
+                        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; line-height: 1.8; white-space: pre-wrap;">
+                            ${escapeHtml(data.example).replace(/\n/g, '<br>')}
+                        </div>
+                        <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e5e5e5; color: #666; font-size: 0.9rem;">
+                            💡 提示：这个示例保持了你的核心观点，但使用了 ${escapeHtml(frameworkName)} 框架重新组织，使表达更清晰、更有逻辑。
+                        </div>
+                    `;
+                } else {
+                    modalBody.innerHTML = `
+                        <div style="text-align: center; color: #f5576c; padding: 40px;">
+                            <p>生成示例失败：${data.detail || '未知错误'}</p>
+                            <button class="retry-btn" onclick="generateFrameworkExample('${frameworkName}', ${JSON.stringify(transcript)})" style="margin-top: 16px;">重试</button>
+                        </div>
+                    `;
+                }
+            } catch (err) {
+                console.error('Error generating framework example:', err);
+                modalBody.innerHTML = `
+                    <div style="text-align: center; color: #f5576c; padding: 40px;">
+                        <p>生成示例时出错：${err.message || '未知错误'}</p>
+                        <p style="font-size: 0.85rem; color: #999; margin-top: 8px;">请检查浏览器控制台查看详细错误信息</p>
+                        <button class="retry-btn" onclick="generateFrameworkExample('${frameworkName}', ${JSON.stringify(transcript)})" style="margin-top: 16px;">重试</button>
+                    </div>
+                `;
+            }
+        }
+        
+        // Close framework modal
+        function closeFrameworkModal() {
+            const modal = document.getElementById('frameworkModal');
+            if (modal) {
+                modal.classList.remove('show');
+            }
+        }
+
+        // Start new recording (retry)
+        function startNewRecording() {
+            recordingSection.style.display = 'block';
+            resultsEl.style.display = 'none';
+            contentScroll.scrollTop = 0;
+        }
+
+        // Escape HTML to prevent XSS
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Load history list
+        async function loadHistory() {
+            try {
+                const response = await fetch('/api/history');
+                const data = await response.json();
+                
+                if (data.success && data.topics && data.topics.length > 0) {
+                    renderHistoryList(data.topics);
+                } else {
+                    historyList.innerHTML = '<div class="history-empty">暂无历史记录</div>';
+                }
+            } catch (err) {
+                console.error('Error loading history:', err);
+                historyList.innerHTML = '<div class="history-empty">加载历史记录失败</div>';
+            }
+        }
+
+        // Render history list
+        function renderHistoryList(topics) {
+            historyList.innerHTML = topics.map(topic => {
+                const date = new Date(topic.created_at);
+                const dateStr = date.toLocaleDateString('zh-CN', { 
+                    month: 'short', 
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                const isActive = topic.id === currentTopicId ? 'active' : '';
+                
+                let attemptsHtml = '';
+                if (topic.attempts && topic.attempts.length > 0) {
+                    attemptsHtml = '<div class="attempts-list">';
+                    topic.attempts.forEach((attempt, idx) => {
+                        const attemptIsActive = attempt.id === currentAttemptId ? 'active' : '';
+                        attemptsHtml += `
+                            <div class="attempt-item ${attemptIsActive}" onclick="loadAttempt('${topic.id}', '${attempt.id}')">
+                                Attempt ${idx + 1} ${attempt.tags && attempt.tags.length ? '• ' + attempt.tags.join(', ') : ''}
+                            </div>
+                        `;
+                    });
+                    attemptsHtml += '</div>';
+                }
+                
+                const tagsHtml = topic.tags && topic.tags.length ? 
+                    `<div class="topic-tags">${topic.tags.map(tag => `<span class="tag">${escapeHtml(tag)}</span>`).join('')}</div>` : '';
+                
+                return `
+                    <div class="history-topic">
+                        <div class="topic-header ${isActive}" onclick="toggleTopic('${topic.id}')">
+                            <div class="topic-title">${escapeHtml(topic.title)}</div>
+                            <div class="topic-date">${dateStr}</div>
+                            ${tagsHtml}
+                        </div>
+                        ${attemptsHtml}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Toggle topic expansion
+        function toggleTopic(topicId) {
+            const topicHeader = event.target.closest('.topic-header');
+            topicHeader.classList.toggle('active');
+            
+            // Set as current topic
+            currentTopicId = topicId;
+            currentAttemptId = null;
+            
+            // Load first attempt
+            loadTopic(topicId);
+        }
+
+        // Load a topic (first attempt)
+        async function loadTopic(topicId) {
+            try {
+                const response = await fetch(`/api/topics/${topicId}`);
+                const data = await response.json();
+                
+                if (data.success && data.topic && data.topic.attempts && data.topic.attempts.length > 0) {
+                    const firstAttempt = data.topic.attempts[0];
+                    loadAttempt(topicId, firstAttempt.id);
+                }
+            } catch (err) {
+                console.error('Error loading topic:', err);
+            }
+        }
+
+        // Load a specific attempt
+        async function loadAttempt(topicId, attemptId) {
+            try {
+                const response = await fetch(`/api/topics/${topicId}/attempts/${attemptId}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentTopicId = topicId;
+                    currentAttemptId = attemptId;
+                    contentTitle.textContent = data.topic.title;
+                    displayResults(data.result, false, null);
+                    loadHistory(); // Refresh to update active states
+                }
+            } catch (err) {
+                console.error('Error loading attempt:', err);
+            }
+        }
+
+        // New recording button
+        newRecordingBtn.addEventListener('click', () => {
+            currentTopicId = null;
+            currentAttemptId = null;
+            contentTitle.textContent = '开始新的表达练习';
+            recordingSection.style.display = 'block';
+            resultsEl.style.display = 'none';
+            resultsEl.innerHTML = '';
+            loadHistory();
+        });
+
+        // Button click handler
+        recordBtn.addEventListener('click', () => {
+            if (isRecording) {
+                stopRecording();
+            } else {
+                startRecording();
+            }
+        });
+
+        // Load history on page load
+        loadHistory();
+        
+        // Close modal on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeFrameworkModal();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,213 @@
+# Product Definition Brief
+
+## Product Name (Working Title)
+
+**Speech Mirror / 表达镜子**
+
+---
+
+## 1. The Core Problem
+
+I want my spoken expression to feel **substantial, structured, and easy to follow**.
+
+However, in real conversations, my speech often becomes:
+
+* scattered,
+* jumpy,
+* less clear than my actual thinking.
+
+The core issue is **not lack of ideas**, but **lack of visibility**.
+
+I cannot clearly *see* my own expression patterns:
+
+* Where does my logic break?
+* Where do I jump topics?
+* Where do I stay abstract for too long?
+* Where do I repeat instead of advancing?
+
+Without visibility, improvement is blind and emotional. I need a system that reflects my expression back to me in a clear, structured, and compassionate way—so I can gradually build a more logical, grounded, and impactful speaking style.
+
+---
+
+## 2. The User & Usage Context
+
+**The user is me** — a thoughtful person whose spoken expression does not always reflect the depth of their thinking.
+
+Typical usage contexts include:
+
+* Group discussions
+* Work meetings
+* Personal or emotional conversations
+* Reflective self-talk or journaling
+* Practicing explanations or public speaking
+
+The user wants their speech to feel:
+
+* **Substantive** (有内容)
+* **Structurally clear** (有结构)
+* **Easy to follow** (不费力)
+* **Insightful** (有洞见)
+
+The primary language is **Chinese**, with occasional **English words or phrases**.
+
+---
+
+## 3. Minimum Viable Product (MVP)
+
+### Core Experience
+
+The simplest version that still feels *magical*:
+
+1. The user records **up to 3 minutes** of speech with a single, simple action.
+2. The audio is automatically transcribed.
+3. The AI analyzes the transcription and provides:
+
+   * a structured evaluation of the expression,
+   * encouragement and praise based on what worked well,
+   * a rewritten example showing a clearer version of the user’s intended message.
+4. The user is invited to **record again on the same topic**, applying the feedback.
+
+This creates a **reflection → practice → improvement** loop.
+
+---
+
+## 4. AI Evaluation Framework
+
+The AI evaluates speech across **four universal dimensions**.
+
+### Dimension 1: Logical Flow
+
+**Focus:** Whether the sequence of ideas feels natural and continuous.
+
+**Indicators:**
+
+* Use of logical connectors (因为 / 所以 / 举个例子 / 总结来说)
+* Smooth transitions between ideas
+* No abrupt or unexplained topic shifts
+
+---
+
+### Dimension 2: Concrete & Specific
+
+**Focus:** Whether abstract ideas are grounded in concrete reality.
+
+**Indicators:**
+
+* Abstract points followed by examples
+* Emotional statements tied to specific events or moments
+* Clear references to people, actions, or situations
+
+---
+
+### Dimension 3: Conciseness
+
+**Focus:** Information density rather than length.
+
+**Indicators:**
+
+* Reduced repetition
+* Fewer filler phrases
+* Clear forward movement of ideas
+
+---
+
+### Dimension 4: Information Structure
+
+**Focus:** Whether ideas are organized in an intuitive structure.
+
+**Indicators:**
+
+* Information grouped or categorized
+* No more than three major points at once
+* Recognizable structures (结论先行 / 因果 / 时间线 / 对比)
+
+---
+
+## 5. Feedback Output Design
+
+Each analysis includes:
+
+1. **Overall Impression**
+
+   * What worked well
+   * What felt clearer or more effective
+
+2. **Dimension-by-Dimension Feedback**
+
+   * Highlights (strengths)
+   * No more than **two improvement points per dimension**
+
+3. **Rewritten Example Expression**
+
+   * A short, improved version of what the user *could* have said
+   * Preserves the user’s intent and tone
+   * Demonstrates clearer structure and specificity
+
+---
+
+## 6. Iterative Practice Loop
+
+After receiving feedback, the system explicitly asks:
+
+> “Would you like to record again on the same topic and try applying these points?”
+
+For subsequent recordings:
+
+* The AI compares the new attempt with previous ones
+* Improvements are **explicitly acknowledged and praised**, such as:
+
+  * clearer structure
+  * more concrete examples
+  * reduced repetition
+* Feedback remains encouraging rather than corrective-only
+
+---
+
+## 7. History & Memory Design
+
+### Stored Information
+
+* Transcribed text of each recording
+* AI analysis and feedback
+* Highlighted improvement points
+
+### Not Stored
+
+* Raw audio files
+
+### Interface Concept
+
+A **ChatGPT-style split layout**:
+
+**Left Panel**
+
+* Topic and date
+* Multiple attempts per topic (Attempt 1 / Attempt 2 / Attempt 3)
+* Optional tags (e.g.「结构更清晰」「例子更具体」)
+
+**Right Panel**
+
+* Transcript
+* AI analysis
+* Rewritten example expression
+* Improvement praise
+
+This design allows the user to track progress over time and build confidence through visible growth.
+
+---
+
+## 8. OKRs
+
+### Objective 1: Smooth Recording & Feedback Experience
+
+* KR1: One-tap recording up to **3 minutes**
+* KR2: Accurate and reliable transcription
+* KR3: Feedback delivered within **3 minutes**
+* KR4: Seamless access to historical records
+
+### Objective 2: Trustworthy and Motivating Feedback
+
+* KR1: Clear analysis across all four dimensions
+* KR2: Praise tied to specific improvements
+* KR3: Rewritten examples feel authentic and helpful
+* KR4: Users voluntarily choose to re-record and iterate
