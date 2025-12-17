@@ -13,3 +13,9 @@ env/
 *.log
 .cursor/
 check_deployment.sh
+
+# User data isolation - each user's data is stored separately
+users/
+
+# Analytics data collection for prompt optimization
+analytics/

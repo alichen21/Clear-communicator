@@ -6,9 +6,10 @@ A web application that analyzes speech clarity across four dimensions.
 import os
 import json
 import uuid
+import secrets
 from datetime import datetime
 from typing import Optional, List
-from fastapi import FastAPI, UploadFile, File, HTTPException, Form
+from fastapi import FastAPI, UploadFile, File, HTTPException, Form, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -53,27 +54,95 @@ API_KEY = os.getenv("AI_BUILDER_TOKEN") or os.getenv("SUPER_MIND_API_KEY")
 if not API_KEY:
     raise ValueError("API key not found. Please set AI_BUILDER_TOKEN or SUPER_MIND_API_KEY in environment variables")
 
-# History storage - new structure: topics with attempts
-TOPICS_FILE = "topics.json"
+# User isolation and data collection
+USERS_DIR = "users"
+ANALYTICS_DIR = "analytics"
+ANALYTICS_FILE = os.path.join(ANALYTICS_DIR, "anonymous_data.json")
 
-def load_topics():
-    """Load topics from JSON file."""
-    if os.path.exists(TOPICS_FILE):
+def get_or_create_user_id(request: Request) -> str:
+    """Get or create user ID from cookie."""
+    user_id = request.cookies.get('user_id')
+    if not user_id:
+        # Generate a new user ID
+        user_id = secrets.token_urlsafe(16)
+    return user_id
+
+def get_user_topics_file(user_id: str) -> str:
+    """Get user-specific topics file path."""
+    user_dir = os.path.join(USERS_DIR, user_id)
+    os.makedirs(user_dir, exist_ok=True)
+    return os.path.join(user_dir, "topics.json")
+
+def load_topics(user_id: str):
+    """Load topics from user-specific JSON file."""
+    topics_file = get_user_topics_file(user_id)
+    if os.path.exists(topics_file):
         try:
-            with open(TOPICS_FILE, 'r', encoding='utf-8') as f:
+            with open(topics_file, 'r', encoding='utf-8') as f:
                 data = json.load(f)
                 if not isinstance(data, list):
                     return []
                 return data
         except Exception as e:
-            print(f"Error loading topics: {e}")
+            print(f"Error loading topics for user {user_id}: {e}")
             return []
     return []
 
-def save_topics(topics):
-    """Save topics to JSON file."""
-    with open(TOPICS_FILE, 'w', encoding='utf-8') as f:
+def save_topics(user_id: str, topics):
+    """Save topics to user-specific JSON file."""
+    topics_file = get_user_topics_file(user_id)
+    with open(topics_file, 'w', encoding='utf-8') as f:
         json.dump(topics, f, ensure_ascii=False, indent=2)
+
+def save_anonymous_data(result: dict):
+    """Save anonymous data for prompt optimization (includes raw transcription)."""
+    os.makedirs(ANALYTICS_DIR, exist_ok=True)
+    
+    # Prepare anonymous entry with raw transcription
+    anonymous_entry = {
+        "timestamp": datetime.now().isoformat(),
+        "transcription": result.get("transcription", ""),
+        "raw_transcription": result.get("raw_transcription", ""),
+        "topic_summary": result.get("topic_summary", ""),
+        "overall_summary": result.get("overall_summary", {}),
+        "dimensions": [
+            {
+                "name": dim.get("name", ""),
+                "score": dim.get("score", 0),
+                "analysis": dim.get("analysis", ""),
+                "highlights": dim.get("highlights", []),
+                "issues": dim.get("issues", []),
+                "suggestions": dim.get("suggestions", [])
+            }
+            for dim in result.get("dimensions", [])
+        ]
+    }
+    
+    # Load existing analytics data
+    if os.path.exists(ANALYTICS_FILE):
+        try:
+            with open(ANALYTICS_FILE, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                if not isinstance(data, list):
+                    data = []
+        except Exception as e:
+            print(f"Error loading analytics data: {e}")
+            data = []
+    else:
+        data = []
+    
+    # Append new entry
+    data.append(anonymous_entry)
+    
+    # Keep only last 10000 entries to prevent file from growing too large
+    data = data[-10000:]
+    
+    # Save analytics data
+    try:
+        with open(ANALYTICS_FILE, 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        print(f"Error saving analytics data: {e}")
 
 async def generate_title(transcript: str, client: httpx.AsyncClient) -> str:
     """Generate a short title (max 10 characters) from the transcript."""
@@ -238,6 +307,7 @@ async def serve_app():
 
 @app.post("/api/analyze")
 async def analyze_speech(
+    request: Request,
     audio_file: UploadFile = File(...),
     topic_id: Optional[str] = Form(None)
 ):
@@ -248,9 +318,12 @@ async def analyze_speech(
     3. If topic_id is provided, compare with previous attempts
     """
     try:
+        # Get or create user ID
+        user_id = get_or_create_user_id(request)
+        
         audio_content = await audio_file.read()
         
-        topics = load_topics()
+        topics = load_topics(user_id)
         previous_attempts = []
         is_retry = False
         
@@ -515,9 +588,13 @@ async def analyze_speech(
                 
                 # Keep only last 50 topics
                 topics[:] = topics[:50]
-                save_topics(topics)
+                save_topics(user_id, topics)
                 
-                return JSONResponse(content={
+                # Save anonymous data for prompt optimization
+                save_anonymous_data(analysis_result)
+                
+                # Create response with user_id cookie
+                response = JSONResponse(content={
                     "success": True,
                     "result": analysis_result,
                     "topic_id": topic_id,
@@ -525,6 +602,9 @@ async def analyze_speech(
                     "is_improvement": has_improvement,
                     "improvement_praise": improvement_praise
                 })
+                # Set cookie to persist user_id (1 year expiration)
+                response.set_cookie(key="user_id", value=user_id, max_age=31536000, httponly=True, samesite="lax")
+                return response
                 
             except json.JSONDecodeError:
                 # Fallback if JSON parsing fails
@@ -563,9 +643,20 @@ async def analyze_speech(
                     topics.insert(0, topic)
                 
                 topics[:] = topics[:50]
-                save_topics(topics)
+                save_topics(user_id, topics)
                 
-                return JSONResponse(content={
+                # Save anonymous data (even if analysis failed)
+                fallback_result = {
+                    "transcription": transcript,
+                    "raw_transcription": raw_transcript,
+                    "topic_summary": "",
+                    "overall_summary": {},
+                    "dimensions": []
+                }
+                save_anonymous_data(fallback_result)
+                
+                # Create response with user_id cookie
+                response = JSONResponse(content={
                     "success": True,
                     "result": {
                         "transcription": transcript,
@@ -577,6 +668,8 @@ async def analyze_speech(
                     "is_improvement": False,
                     "improvement_praise": None
                 })
+                response.set_cookie(key="user_id", value=user_id, max_age=31536000, httponly=True, samesite="lax")
+                return response
                 
     except httpx.TimeoutException:
         raise HTTPException(status_code=504, detail="Request timed out. Please try again.")
@@ -586,10 +679,11 @@ async def analyze_speech(
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/history")
-async def get_history():
-    """Get all topics with their attempts summary."""
+async def get_history(request: Request):
+    """Get all topics with their attempts summary (user-specific)."""
     try:
-        topics = load_topics()
+        user_id = get_or_create_user_id(request)
+        topics = load_topics(user_id)
         # Return topics with attempt summaries
         topics_list = []
         for topic in topics:
@@ -608,31 +702,40 @@ async def get_history():
                 ],
                 "tags": topic.get("tags", [])
             })
-        return JSONResponse(content={
+        response = JSONResponse(content={
             "success": True,
             "topics": topics_list
         })
+        # Set cookie if not already set
+        if not request.cookies.get('user_id'):
+            response.set_cookie(key="user_id", value=user_id, max_age=31536000, httponly=True, samesite="lax")
+        return response
     except Exception as e:
         import traceback
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Error loading history: {str(e)}")
 
 @app.get("/api/topics/{topic_id}")
-async def get_topic(topic_id: str):
-    """Get a specific topic with all attempts."""
-    topics = load_topics()
+async def get_topic(request: Request, topic_id: str):
+    """Get a specific topic with all attempts (user-specific)."""
+    user_id = get_or_create_user_id(request)
+    topics = load_topics(user_id)
     topic = next((t for t in topics if t["id"] == topic_id), None)
     if topic:
-        return JSONResponse(content={
+        response = JSONResponse(content={
             "success": True,
             "topic": topic
         })
+        if not request.cookies.get('user_id'):
+            response.set_cookie(key="user_id", value=user_id, max_age=31536000, httponly=True, samesite="lax")
+        return response
     raise HTTPException(status_code=404, detail="Topic not found")
 
 @app.get("/api/topics/{topic_id}/attempts/{attempt_id}")
-async def get_attempt(topic_id: str, attempt_id: str):
-    """Get a specific attempt from a topic."""
-    topics = load_topics()
+async def get_attempt(request: Request, topic_id: str, attempt_id: str):
+    """Get a specific attempt from a topic (user-specific)."""
+    user_id = get_or_create_user_id(request)
+    topics = load_topics(user_id)
     topic = next((t for t in topics if t["id"] == topic_id), None)
     if not topic:
         raise HTTPException(status_code=404, detail="Topic not found")
@@ -641,7 +744,7 @@ async def get_attempt(topic_id: str, attempt_id: str):
     if not attempt:
         raise HTTPException(status_code=404, detail="Attempt not found")
     
-    return JSONResponse(content={
+    response = JSONResponse(content={
         "success": True,
         "topic": {
             "id": topic["id"],
@@ -650,6 +753,9 @@ async def get_attempt(topic_id: str, attempt_id: str):
         },
         "result": attempt["result"]
     })
+    if not request.cookies.get('user_id'):
+        response.set_cookie(key="user_id", value=user_id, max_age=31536000, httponly=True, samesite="lax")
+    return response
 
 # Prompt 管理和对比测试 API
 if PROMPT_OPTIMIZATION_ENABLED:

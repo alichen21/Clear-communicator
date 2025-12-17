@@ -5,6 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>言值 - 让每一次表达都有价值</title>
     <style>
+        /* 高级大方的绿色配色系统 */
+        :root {
+            --green-primary: #10B981;         /* 主绿色 - 现代、高级 */
+            --green-dark: #059669;           /* 深绿色 - 用于悬停和强调 */
+            --green-light: #D1FAE5;          /* 浅绿色 - 用于背景和卡片 */
+            --green-bg: #ECFDF5;             /* 非常浅的绿色背景 */
+            --green-bg-gradient: linear-gradient(135deg, #ECFDF5 0%, #F0FDF4 50%, #FFFFFF 100%); /* 渐变背景 */
+            --green-accent: #34D399;          /* 强调绿色 */
+            --green-gradient: linear-gradient(135deg, #10B981 0%, #059669 100%);
+            --bg-surface: #FFFFFF;            /* 白色表面 */
+            --text-main: #111827;             /* 深色文字 */
+            --text-secondary: #6B7280;        /* 次要文字 */
+            --text-tertiary: #9CA3AF;         /* 三级文字 */
+            --border: #E5E7EB;               /* 边框 */
+            --border-light: #F3F4F6;         /* 浅边框 */
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -13,210 +34,490 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Microsoft YaHei', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--bg-surface);
             min-height: 100vh;
-            color: #333;
+            color: var(--text-main);
             overflow-x: hidden;
+            line-height: 1.6;
         }
 
-        /* Animated background */
-        .bg-animation {
+        /* Navigation */
+        .nav {
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-            opacity: 0.1;
-            background: 
-                radial-gradient(circle at 20% 50%, rgba(255,255,255,0.3) 0%, transparent 50%),
-                radial-gradient(circle at 80% 80%, rgba(255,255,255,0.2) 0%, transparent 50%);
-            animation: float 20s ease-in-out infinite;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-light);
+            z-index: 1000;
+            padding: 20px 0;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
         }
 
-        @keyframes float {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(5deg); }
-        }
-
-        .container {
-            position: relative;
-            z-index: 1;
-            max-width: 1200px;
+        .nav-container {
+            max-width: 1280px;
             margin: 0 auto;
-            padding: 60px 20px;
+            padding: 0 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        /* Header */
-        .header {
-            text-align: center;
-            margin-bottom: 80px;
-            animation: fadeInDown 0.8s ease-out;
-        }
-
-        @keyframes fadeInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .logo {
-            font-size: 4rem;
+        .nav-logo {
+            font-size: 1.75rem;
             font-weight: 700;
-            color: #ffffff;
-            margin-bottom: 16px;
-            letter-spacing: 2px;
-            text-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            color: var(--text-main);
+            text-decoration: none;
+            letter-spacing: -0.5px;
+            background: var(--green-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
-        .tagline {
-            font-size: 1.3rem;
-            color: rgba(255,255,255,0.95);
-            font-weight: 300;
-            letter-spacing: 1px;
+        .nav-links {
+            display: flex;
+            gap: 32px;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--green-primary);
+        }
+
+        .nav-cta {
+            padding: 12px 28px;
+            background: var(--green-primary);
+            color: white;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .nav-cta:hover {
+            background: var(--green-dark);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
         }
 
         /* Hero Section */
         .hero {
-            text-align: center;
-            margin-bottom: 100px;
-            animation: fadeInUp 1s ease-out 0.2s both;
+            margin-top: 100px;
+            padding: 100px 32px 120px;
+            max-width: 1280px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .hero-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+            margin-bottom: 80px;
+        }
+
+        .hero-text {
+            max-width: 600px;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: var(--green-light);
+            color: var(--green-dark);
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 24px;
         }
 
         .hero-title {
-            font-size: 3rem;
-            font-weight: 700;
-            color: #ffffff;
+            font-size: 3.75rem;
+            font-weight: 800;
+            color: var(--text-main);
             margin-bottom: 24px;
-            line-height: 1.3;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            line-height: 1.1;
+            letter-spacing: -2px;
         }
 
         .hero-subtitle {
-            font-size: 1.2rem;
-            color: rgba(255,255,255,0.9);
-            font-weight: 300;
-            max-width: 800px;
-            margin: 0 auto;
-            line-height: 1.8;
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+            margin-bottom: 40px;
+            line-height: 1.7;
         }
 
-        /* Pain Points */
-        .pain-points {
+        .hero-cta {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 16px 32px;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            letter-spacing: 0.1px;
+        }
+
+        .btn-primary {
+            background: var(--green-primary);
+            color: white;
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-primary:hover {
+            background: var(--green-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-secondary {
+            background: var(--bg-surface);
+            color: var(--text-main);
+            border: 2px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--green-primary);
+            color: var(--green-primary);
+        }
+
+        .hero-visual {
+            position: relative;
+            background: var(--green-bg-gradient);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: var(--shadow-xl);
+            border: 1px solid var(--border-light);
+        }
+
+        .hero-visual-content {
+            background: var(--bg-surface);
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: var(--shadow-md);
+        }
+
+        .visual-card {
+            background: var(--green-bg);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 16px;
+            border: 1px solid var(--border-light);
+        }
+
+        .visual-card:last-child {
+            margin-bottom: 0;
+        }
+
+        .visual-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--green-dark);
+            margin-bottom: 8px;
+        }
+
+        .visual-score {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--green-primary);
+        }
+
+        /* Stats Section */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
             margin-bottom: 100px;
-            animation: fadeInUp 1s ease-out 0.4s both;
+        }
+
+        .stat-card {
+            background: var(--bg-surface);
+            border-radius: 16px;
+            padding: 32px;
+            border: 1px solid var(--border-light);
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--green-light);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--green-primary);
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        /* Features Section */
+        .features {
+            padding: 100px 32px;
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 80px;
         }
 
         .section-title {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 20px;
+            letter-spacing: -1px;
+        }
+
+        .section-description {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.7;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 32px;
+            margin-bottom: 80px;
+        }
+
+        .feature-card {
+            background: var(--bg-surface);
+            border-radius: 20px;
+            padding: 40px;
+            border: 1px solid var(--border-light);
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-6px);
+            box-shadow: var(--shadow-xl);
+            border-color: var(--green-light);
+        }
+
+        .feature-icon {
+            width: 64px;
+            height: 64px;
+            background: var(--green-gradient);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-size: 2rem;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-md);
+        }
+
+        .feature-title {
+            font-size: 1.5rem;
             font-weight: 600;
-            color: #ffffff;
-            text-align: center;
-            margin-bottom: 40px;
+            color: var(--text-main);
+            margin-bottom: 16px;
+        }
+
+        .feature-description {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        /* How It Works Section */
+        .how-it-works {
+            padding: 100px 32px;
+            background: var(--green-bg);
+            margin-top: 80px;
+        }
+
+        .how-container {
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+            margin-top: 60px;
+        }
+
+        .step-card {
+            background: var(--bg-surface);
+            border-radius: 20px;
+            padding: 40px;
+            border: 1px solid var(--border-light);
+            position: relative;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .step-number {
+            position: absolute;
+            top: -20px;
+            left: 40px;
+            width: 48px;
+            height: 48px;
+            background: var(--green-gradient);
+            color: white;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            box-shadow: var(--shadow-md);
+        }
+
+        .step-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-top: 20px;
+            margin-bottom: 16px;
+        }
+
+        .step-description {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        /* Pain Points Section */
+        .pain-points {
+            padding: 100px 32px;
+            background: var(--bg-surface);
+        }
+
+        .pain-container {
+            max-width: 1280px;
+            margin: 0 auto;
         }
 
         .pain-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-            margin-bottom: 40px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-top: 60px;
         }
 
         .pain-card {
-            background: rgba(255,255,255,0.95);
-            backdrop-filter: blur(10px);
+            background: var(--green-bg);
             border-radius: 16px;
-            padding: 24px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            padding: 32px;
+            border: 1px solid var(--border-light);
             transition: all 0.3s ease;
-            border: 1px solid rgba(255,255,255,0.3);
-        }
-
-        .pain-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+            position: relative;
         }
 
         .pain-card::before {
-            content: '';
-            display: block;
-            width: 4px;
-            height: 40px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 2px;
-            margin-bottom: 16px;
+            content: '⚠';
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            font-size: 1.5rem;
+            opacity: 0.3;
+        }
+
+        .pain-card:hover {
+            border-color: var(--green-light);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
         }
 
         .pain-text {
-            font-size: 1rem;
-            color: #333;
-            line-height: 1.6;
+            font-size: 1.05rem;
+            color: var(--text-main);
+            line-height: 1.7;
+            font-weight: 500;
         }
 
-        /* Core Values */
-        .core-values {
-            margin-bottom: 100px;
-            animation: fadeInUp 1s ease-out 0.6s both;
+        /* Values Section */
+        .values {
+            padding: 100px 32px;
+            max-width: 1280px;
+            margin: 0 auto;
         }
 
         .values-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 30px;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 40px;
+            margin-top: 60px;
         }
 
         .value-card {
-            background: rgba(255,255,255,0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            background: var(--bg-surface);
+            border-radius: 24px;
+            padding: 48px;
+            border: 1px solid var(--border-light);
+            box-shadow: var(--shadow-sm);
             transition: all 0.3s ease;
-            border: 1px solid rgba(255,255,255,0.3);
         }
 
         .value-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+            box-shadow: var(--shadow-xl);
+            transform: translateY(-4px);
+            border-color: var(--green-light);
+        }
+
+        .value-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 64px;
+            height: 64px;
+            background: var(--green-gradient);
+            color: white;
+            border-radius: 16px;
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-md);
         }
 
         .value-title {
-            font-size: 1.5rem;
+            font-size: 1.75rem;
             font-weight: 600;
-            color: #667eea;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .value-icon {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1.2rem;
-            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 24px;
         }
 
         .value-list {
@@ -227,106 +528,224 @@
             padding: 12px 0;
             padding-left: 32px;
             position: relative;
-            color: #555;
-            font-size: 1rem;
-            line-height: 1.6;
+            color: var(--text-secondary);
+            font-size: 1.05rem;
+            line-height: 1.8;
         }
 
         .value-list li::before {
-            content: '→';
+            content: '✓';
             position: absolute;
             left: 0;
-            color: #667eea;
+            color: var(--green-primary);
             font-weight: 700;
-            font-size: 1.2rem;
-        }
-
-        /* Framework Credit */
-        .framework-credit {
-            text-align: center;
-            margin-bottom: 60px;
-            animation: fadeInUp 1s ease-out 0.8s both;
-        }
-
-        .credit-text {
-            font-size: 1rem;
-            color: rgba(255,255,255,0.8);
-            font-style: italic;
-        }
-
-        .credit-name {
-            color: #ffffff;
-            font-weight: 600;
+            font-size: 1.25rem;
         }
 
         /* CTA Section */
         .cta-section {
+            padding: 120px 32px;
+            background: var(--green-gradient);
+            color: white;
             text-align: center;
-            animation: fadeInUp 1s ease-out 1s both;
+            margin-top: 80px;
+            position: relative;
+            overflow: hidden;
         }
 
-        .cta-buttons {
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-            flex-wrap: wrap;
+        .cta-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="100" height="100" patternUnits="userSpaceOnUse"><path d="M 100 0 L 0 0 0 100" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.3;
         }
 
-        .btn {
+        .cta-content {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .cta-title {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 24px;
+            letter-spacing: -1px;
+        }
+
+        .cta-description {
+            font-size: 1.25rem;
+            margin-bottom: 48px;
+            opacity: 0.95;
+            line-height: 1.7;
+        }
+
+        .cta-button {
+            background: white;
+            color: var(--green-primary);
             padding: 18px 48px;
-            font-size: 1.1rem;
+            font-size: 1.125rem;
             font-weight: 600;
-            border: none;
             border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.3s ease;
             text-decoration: none;
-            display: inline-block;
-            letter-spacing: 0.5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            box-shadow: var(--shadow-xl);
         }
 
-        .btn-primary {
-            background: #ffffff;
-            color: #667eea;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
         }
 
-        .btn-primary:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 32px rgba(0,0,0,0.3);
+        /* Footer */
+        .footer {
+            padding: 80px 32px 40px;
+            background: var(--bg-surface);
+            border-top: 1px solid var(--border-light);
         }
 
-        .btn-secondary {
-            background: rgba(255,255,255,0.2);
-            color: #ffffff;
-            border: 2px solid rgba(255,255,255,0.5);
-            backdrop-filter: blur(10px);
+        .footer-content {
+            max-width: 1280px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 60px;
+            margin-bottom: 60px;
         }
 
-        .btn-secondary:hover {
-            background: rgba(255,255,255,0.3);
-            transform: translateY(-4px);
+        .footer-brand {
+            max-width: 400px;
+        }
+
+        .footer-logo {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 16px;
+            background: var(--green-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .footer-description {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.7;
+            margin-bottom: 24px;
+        }
+
+        .footer-section h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 20px;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 12px;
+        }
+
+        .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color 0.2s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--green-primary);
+        }
+
+        .footer-bottom {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding-top: 40px;
+            border-top: 1px solid var(--border-light);
+            text-align: center;
+            color: var(--text-tertiary);
+            font-size: 0.9rem;
         }
 
         /* Responsive */
-        @media (max-width: 768px) {
-            .logo {
-                font-size: 2.5rem;
+        @media (max-width: 1024px) {
+            .hero-content {
+                grid-template-columns: 1fr;
+                gap: 40px;
             }
 
-            .hero-title {
-                font-size: 2rem;
+            .hero-visual {
+                order: -1;
             }
 
-            .hero-subtitle {
-                font-size: 1rem;
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
             }
 
-            .section-title {
-                font-size: 1.5rem;
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .steps {
+                grid-template-columns: 1fr;
+            }
+
+            .pain-grid {
+                grid-template-columns: repeat(2, 1fr);
             }
 
             .values-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-container {
+                padding: 0 20px;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .hero {
+                padding: 80px 20px 100px;
+            }
+
+            .hero-title {
+                font-size: 2.5rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1.125rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .features-grid {
                 grid-template-columns: 1fr;
             }
 
@@ -334,61 +753,177 @@
                 grid-template-columns: 1fr;
             }
 
-            .cta-buttons {
+            .features,
+            .how-it-works,
+            .pain-points,
+            .values {
+                padding: 60px 20px;
+            }
+
+            .cta-section {
+                padding: 80px 20px;
+            }
+
+            .cta-title {
+                font-size: 2rem;
+            }
+
+            .hero-cta {
                 flex-direction: column;
             }
 
             .btn {
                 width: 100%;
-                max-width: 300px;
             }
-        }
-
-        /* Scroll indicator */
-        .scroll-indicator {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: rgba(255,255,255,0.7);
-            font-size: 0.9rem;
-            animation: bounce 2s infinite;
-            z-index: 10;
-        }
-
-        @keyframes bounce {
-            0%, 100% { transform: translateX(-50%) translateY(0); }
-            50% { transform: translateX(-50%) translateY(-10px); }
-        }
-
-        .scroll-indicator::after {
-            content: '↓';
-            display: block;
-            text-align: center;
-            font-size: 1.5rem;
-            margin-top: 8px;
         }
     </style>
 </head>
 <body>
-    <div class="bg-animation"></div>
-    
-    <div class="container">
-        <!-- Header -->
-        <div class="header">
-            <div class="logo">言值</div>
-            <div class="tagline">让每一次表达都有价值</div>
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="/" class="nav-logo">言值</a>
+            <div class="nav-links">
+                <a href="#features" class="nav-link">功能</a>
+                <a href="#how-it-works" class="nav-link">如何使用</a>
+                <a href="#values" class="nav-link">核心理念</a>
+                <a href="/app" class="nav-cta">开始使用</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-text">
+                <div class="hero-badge">
+                    <span>✨</span>
+                    <span>AI驱动的表达训练</span>
+                </div>
+                <h1 class="hero-title">让每一次表达<br>都有价值</h1>
+                <p class="hero-subtitle">基于黄执中表达实战营框架，通过AI智能分析，帮你系统提升表达能力。从结构到内容，从自我到他人，全面提升你的表达力。</p>
+                <div class="hero-cta">
+                    <a href="/app" class="btn btn-primary">开始表达训练</a>
+                    <a href="#features" class="btn btn-secondary">了解更多</a>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="hero-visual-content">
+                    <div class="visual-card">
+                        <div class="visual-title">表达指向性</div>
+                        <div class="visual-score">8.5</div>
+                    </div>
+                    <div class="visual-card">
+                        <div class="visual-title">结构清晰度</div>
+                        <div class="visual-score">9.0</div>
+                    </div>
+                    <div class="visual-card">
+                        <div class="visual-title">具体程度</div>
+                        <div class="visual-score">7.8</div>
+                    </div>
+                    <div class="visual-card">
+                        <div class="visual-title">主题与重点</div>
+                        <div class="visual-score">8.2</div>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <!-- Hero Section -->
-        <div class="hero">
-            <h1 class="hero-title">唯有表达不再是问题，<br>这些问题才能真正被解决</h1>
-            <p class="hero-subtitle">基于黄执中表达实战营框架，通过AI智能分析，帮你系统提升表达能力</p>
+        <!-- Stats -->
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number">4</div>
+                <div class="stat-label">专业维度分析</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">100%</div>
+                <div class="stat-label">隐私保护</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">实时</div>
+                <div class="stat-label">AI智能反馈</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">∞</div>
+                <div class="stat-label">无限次练习</div>
+            </div>
         </div>
+    </section>
 
-        <!-- Pain Points -->
-        <div class="pain-points">
-            <h2 class="section-title">你是否遇到过这些问题？</h2>
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="section-header">
+            <h2 class="section-title">为什么选择言值？</h2>
+            <p class="section-description">专业的AI分析，系统化的训练框架，帮助你快速提升表达能力</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🎯</div>
+                <h3 class="feature-title">四维分析</h3>
+                <p class="feature-description">从表达指向性、结构清晰度、具体程度、主题与重点四个维度，全面评估你的表达质量，提供专业的评分和详细分析</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3 class="feature-title">智能反馈</h3>
+                <p class="feature-description">AI深度分析你的表达，识别亮点和改进空间，提供具体的改进建议和鼓励性表扬，帮助你持续进步</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔄</div>
+                <h3 class="feature-title">迭代训练</h3>
+                <p class="feature-description">支持同一主题多次练习，自动对比分析改进效果，识别进步点并生成表扬，形成持续提升的训练闭环</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🎨</div>
+                <h3 class="feature-title">框架指导</h3>
+                <p class="feature-description">提供"过去-现在-未来"、"空-雨-伞"、"3C"等经典表达框架，AI自动生成基于你内容的框架示例</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔒</div>
+                <h3 class="feature-title">隐私保护</h3>
+                <p class="feature-description">你的对话数据完全隔离，只有你能看到自己的表达记录。采用先进的用户隔离技术，安全可靠</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">💡</div>
+                <h3 class="feature-title">实时分析</h3>
+                <p class="feature-description">录音后立即获得专业分析，无需等待。快速了解表达质量，及时调整和改进，提升训练效率</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="how-it-works" id="how-it-works">
+        <div class="how-container">
+            <div class="section-header">
+                <h2 class="section-title">如何使用言值？</h2>
+                <p class="section-description">简单三步，开启你的表达训练之旅</p>
+            </div>
+            <div class="steps">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <h3 class="step-title">录音表达</h3>
+                    <p class="step-description">点击"开始表达"按钮，录制你的语音表达。支持最长5分钟录音，可以自由表达你的想法和观点。</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <h3 class="step-title">AI分析</h3>
+                    <p class="step-description">系统自动转录并分析你的表达，从四个维度进行专业评估，生成详细的反馈报告和改进建议。</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <h3 class="step-title">迭代改进</h3>
+                    <p class="step-description">根据反馈建议，在同一主题上再次练习。系统会自动对比改进效果，帮助你持续提升表达能力。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pain Points Section -->
+    <section class="pain-points">
+        <div class="pain-container">
+            <div class="section-header">
+                <h2 class="section-title">你是否遇到过这些问题？</h2>
+                <p class="section-description">言值帮你解决表达中的常见困扰</p>
+            </div>
             <div class="pain-grid">
                 <div class="pain-card">
                     <p class="pain-text">有内容有想法，但讲不出价值</p>
@@ -405,73 +940,106 @@
                 <div class="pain-card">
                     <p class="pain-text">来来回回就几句，车轱辘话反复说</p>
                 </div>
+                <div class="pain-card">
+                    <p class="pain-text">表达缺乏结构，听众跟不上思路</p>
+                </div>
             </div>
         </div>
+    </section>
 
-        <!-- Core Values -->
-        <div class="core-values">
+    <!-- Values Section -->
+    <section class="values" id="values">
+        <div class="section-header">
             <h2 class="section-title">我们的核心理念</h2>
-            <div class="values-grid">
-                <div class="value-card">
-                    <div class="value-title">
-                        <div class="value-icon">1</div>
-                        <span>如何吸引听众的注意</span>
-                    </div>
-                    <ul class="value-list">
-                        <li>找到表达的动机</li>
-                        <li>了解听众的目的</li>
-                    </ul>
-                </div>
-                <div class="value-card">
-                    <div class="value-title">
-                        <div class="value-icon">2</div>
-                        <span>如何清晰表达</span>
-                    </div>
-                    <ul class="value-list">
-                        <li>掌握清晰的框架</li>
-                        <li>把握内容的核心</li>
-                        <li>具象表达</li>
-                    </ul>
-                </div>
+            <p class="section-description">基于黄执中表达实战营的专业框架</p>
+        </div>
+        <div class="values-grid">
+            <div class="value-card">
+                <div class="value-number">1</div>
+                <h3 class="value-title">如何吸引听众的注意</h3>
+                <ul class="value-list">
+                    <li>找到表达的动机，明确你想要传达的核心信息</li>
+                    <li>了解听众的目的和需求，建立有效的连接</li>
+                    <li>从自我走向他人，让表达产生真正的价值</li>
+                </ul>
+            </div>
+            <div class="value-card">
+                <div class="value-number">2</div>
+                <h3 class="value-title">如何清晰表达</h3>
+                <ul class="value-list">
+                    <li>掌握清晰的框架，构建有逻辑的表达结构</li>
+                    <li>把握内容的核心，突出主题与重点</li>
+                    <li>具象表达，让抽象概念变得具体可感</li>
+                </ul>
             </div>
         </div>
+    </section>
 
-        <!-- Framework Credit -->
-        <div class="framework-credit">
-            <p class="credit-text">表达训练框架 Inspired by <span class="credit-name">黄执中的表达实战营</span></p>
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="cta-content">
+            <h2 class="cta-title">开始你的表达训练之旅</h2>
+            <p class="cta-description">立即体验AI驱动的专业表达分析，让每一次表达都更有价值。免费开始，无需注册。</p>
+            <a href="/app" class="cta-button">免费开始使用 →</a>
         </div>
+    </section>
 
-        <!-- CTA Section -->
-        <div class="cta-section">
-            <div class="cta-buttons">
-                <a href="/app" class="btn btn-primary">开始表达训练</a>
-                <a href="#how-it-works" class="btn btn-secondary">了解更多</a>
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <div class="footer-logo">言值</div>
+                <p class="footer-description">让每一次表达都有价值。基于黄执中表达实战营的专业框架，通过AI技术帮助你系统提升表达能力。</p>
+            </div>
+            <div class="footer-section">
+                <h4>产品</h4>
+                <ul class="footer-links">
+                    <li><a href="#features">功能特性</a></li>
+                    <li><a href="#how-it-works">如何使用</a></li>
+                    <li><a href="#values">核心理念</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>关于</h4>
+                <ul class="footer-links">
+                    <li><a href="/app">开始使用</a></li>
+                    <li><a href="#">隐私政策</a></li>
+                    <li><a href="#">使用条款</a></li>
+                </ul>
             </div>
         </div>
-    </div>
-
-    <div class="scroll-indicator">向下滚动了解更多</div>
+        <div class="footer-bottom">
+            <p>言值 - 让每一次表达都有价值 | 表达训练框架 Inspired by 黄执中的表达实战营</p>
+        </div>
+    </footer>
 
     <script>
-        // Smooth scroll for "了解更多" button
-        document.querySelector('a[href="#how-it-works"]')?.addEventListener('click', function(e) {
-            e.preventDefault();
-            // Scroll to core values section
-            document.querySelector('.core-values').scrollIntoView({ 
-                behavior: 'smooth',
-                block: 'start'
+        // Smooth scroll for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
             });
         });
 
-        // Hide scroll indicator after scrolling
-        let scrollIndicator = document.querySelector('.scroll-indicator');
-        window.addEventListener('scroll', function() {
-            if (window.scrollY > 100) {
-                scrollIndicator.style.opacity = '0';
-                scrollIndicator.style.transition = 'opacity 0.5s ease';
+        // Navbar scroll effect
+        let lastScroll = 0;
+        const nav = document.querySelector('.nav');
+        window.addEventListener('scroll', () => {
+            const currentScroll = window.pageYOffset;
+            if (currentScroll > 100) {
+                nav.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
+            } else {
+                nav.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.05)';
             }
+            lastScroll = currentScroll;
         });
     </script>
 </body>
 </html>
-
