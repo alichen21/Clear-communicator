@@ -227,8 +227,13 @@ async def compare_attempts(current_result: dict, previous_attempts: List[dict], 
     return False, None, []
 
 @app.get("/")
-async def serve_index():
-    """Serve the main HTML page."""
+async def serve_landing():
+    """Serve the landing page."""
+    return FileResponse("landing.html")
+
+@app.get("/app")
+async def serve_app():
+    """Serve the main application page."""
     return FileResponse("index.html")
 
 @app.post("/api/analyze")
