@@ -1,6 +1,6 @@
-# Clear Communicator - 清晰表达
+# 言值 - 让每一次表达都有价值
 
-一个基于 AI 的表达质量分析工具，帮助用户提升口头表达能力。
+一个基于 AI 的表达质量分析工具，帮助用户系统提升口头表达能力。表达训练框架 Inspired by 黄执中的表达实战营。
 
 ## 功能特性
 
@@ -40,7 +40,9 @@ python main.py
 uvicorn main:app --reload
 ```
 
-4. 访问：http://localhost:8000
+4. 访问：
+   - Landing 页面：http://localhost:8000
+   - 主应用页面：http://localhost:8000/app
 
 ## 部署
 
