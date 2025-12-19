@@ -850,7 +850,7 @@
         let isRecording = false;
         let timerInterval = null;
         let recordingStartTime = null;
-        const MAX_RECORDING_TIME = 300000; // 5 minutes (changed from 3 minutes)
+        const MAX_RECORDING_TIME = 180000; // 3 minutes
         let currentTopicId = null;
         let currentAttemptId = null;
 
@@ -898,7 +898,7 @@
                 recordBtn.textContent = '停止录音';
                 recordBtn.classList.add('recording');
                 timerEl.textContent = '00:00';
-                statusEl.textContent = '正在录音... (最长 5 分钟)';
+                statusEl.textContent = '正在录音... (最长 3 分钟)';
                 statusEl.className = 'status';
                 resultsEl.style.display = 'none';
                 
@@ -933,6 +933,20 @@
             
             try {
                 const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                const fileSizeMB = audioBlob.size / 1024 / 1024;
+                
+                // Check file size before upload (warn if > 30MB)
+                if (fileSizeMB > 50) {
+                    statusEl.textContent = `错误：音频文件太大（${fileSizeMB.toFixed(1)}MB）。最大支持50MB。请录制更短的音频。`;
+                    statusEl.className = 'status error';
+                    recordBtn.disabled = false;
+                    return;
+                }
+                
+                if (fileSizeMB > 30) {
+                    statusEl.textContent = `警告：音频文件较大（${fileSizeMB.toFixed(1)}MB），上传可能需要较长时间...`;
+                }
+                
                 const formData = new FormData();
                 formData.append('audio_file', audioBlob, 'recording.webm');
                 
@@ -948,6 +962,49 @@
                     body: formData
                 });
                 
+                // Handle different response status codes
+                if (response.status === 413) {
+                    // Content Too Large
+                    let errorMsg = '音频文件太大。请尝试录制更短的音频（建议不超过3分钟）。';
+                    try {
+                        const errorData = await response.json();
+                        if (errorData.detail) {
+                            errorMsg = errorData.detail;
+                        }
+                    } catch (e) {
+                        // If response is not JSON (might be HTML error page)
+                        errorMsg = '音频文件太大。服务器返回413错误。请尝试录制更短的音频（建议不超过3分钟）。';
+                    }
+                    statusEl.textContent = errorMsg;
+                    statusEl.className = 'status error';
+                    recordBtn.disabled = false;
+                    return;
+                }
+                
+                if (!response.ok) {
+                    // Try to parse error response
+                    let errorMsg = `服务器错误（${response.status}）。请重试。`;
+                    try {
+                        const errorData = await response.json();
+                        if (errorData.detail) {
+                            errorMsg = errorData.detail;
+                        } else if (errorData.error) {
+                            errorMsg = errorData.error;
+                        }
+                    } catch (e) {
+                        // If response is HTML (like nginx error page), show generic message
+                        if (response.status >= 500) {
+                            errorMsg = '服务器错误，请稍后重试。';
+                        } else if (response.status === 413) {
+                            errorMsg = '音频文件太大。请尝试录制更短的音频。';
+                        }
+                    }
+                    statusEl.textContent = errorMsg;
+                    statusEl.className = 'status error';
+                    recordBtn.disabled = false;
+                    return;
+                }
+                
                 const data = await response.json();
                 
                 if (data.success) {
@@ -958,13 +1015,20 @@
                     statusEl.className = 'status';
                     loadHistory();
                 } else {
-                    statusEl.textContent = data.error || '分析失败，请重试';
+                    statusEl.textContent = data.error || data.detail || '分析失败，请重试';
                     statusEl.className = 'status error';
                 }
                 
             } catch (err) {
                 console.error('Error sending audio:', err);
-                statusEl.textContent = '错误：无法分析音频，请重试';
+                // Check if it's a network error or JSON parse error
+                if (err instanceof SyntaxError && err.message.includes('JSON')) {
+                    statusEl.textContent = '服务器返回了非JSON响应（可能是413错误）。音频文件可能太大，请尝试录制更短的音频。';
+                } else if (err.message && err.message.includes('Failed to fetch')) {
+                    statusEl.textContent = '网络错误：无法连接到服务器。请检查网络连接后重试。';
+                } else {
+                    statusEl.textContent = `错误：无法分析音频（${err.message || '未知错误'}）。请重试。`;
+                }
                 statusEl.className = 'status error';
             } finally {
                 recordBtn.disabled = false;
